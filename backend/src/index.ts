@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client/edge'
 import { sign } from "hono/jwt"
 import { userRouter } from './routes/userRouter'
 import { blogRouter } from './routes/blogRouter'
- 
+import { cors } from 'hono/cors'
 
 const app = new Hono<{
   Bindings: {
@@ -12,7 +12,7 @@ const app = new Hono<{
     jwt_secret:string
   }
 }>()
-
+app.use("/*",cors())
 app.route("/api/v1/user",userRouter);
 app.route("/api/v1/blog",blogRouter);
 

@@ -9,7 +9,7 @@ export const blogRouter = new Hono<{
       jwt_secret:string,
     },
     Variables:{
-      userid:string
+      userid:object
     }
   }>();
 
@@ -46,7 +46,8 @@ blogRouter.post("/",async (c)=>{
       }
     })
     return c.json({
-      msg:" Posted successfully "
+      msg:" Posted successfully",
+      success:true
     })
   }catch(e){
     console.error(e);
@@ -76,7 +77,19 @@ blogRouter.get("/bulk",async (c)=>{
  
   const prisma = new PrismaClient({ datasourceUrl: c.env.DATABASE_URL, }).$extends(withAccelerate())
   try{
-    const posts=await prisma.post.findMany();
+    const posts=await prisma.post.findMany({
+      select:{
+        id:true,
+        title:true,
+        content:true,
+        created_at:true,
+        author:{
+          select:{
+            username:true
+          }
+        }
+      }
+    });
     console.log(posts)
     return c.json({
       posts
@@ -94,6 +107,16 @@ blogRouter.get("/:id",async (c)=>{
     const post= await prisma.post.findFirst({
       where:{
         id:id
+      },
+      select:{
+        title:true,
+        content:true,
+        created_at:true,
+        author:{
+          select:{
+            username:true
+          }
+        }
       }
     })
     return c.json({
